@@ -27,12 +27,17 @@ from src.draw.draw import (
     draw_confetti,
     show_score,
     show_error_feedback,
+    show_image_movements,
+    draw_text_top_center,
 )
 from database.students.students import select_students
 from database.scores.scores import add_score
 from src.interfaces.game_mode import IGameMode
 
 screen_name = "Jogo de Movimentos"
+
+_TRAINING_MOVEMENTS = [mov.LEFT_HAND, mov.RIGHT_HAND, mov.JUMP, mov.CROUCH]
+_TRAINING_FEEDBACK_MSGS = ["Muito bem!", "Ótimo!", "Perfeito!", "Excelente!"]
 
 class Game:
     def __init__(self):       
@@ -44,6 +49,7 @@ class Game:
         self.score_timeB = 0
 
         self.confetti_particles: List[Confetti] = []
+        self.training_done = False
         self.get_serial_number()
         self.reset_variables()
 
@@ -70,6 +76,7 @@ class Game:
         self.is_movement_wrong = False
         self.is_movement_identified = False
         self.is_draw_circles = False
+        self.is_training = False
         self.bounce_frame = 0
         self.movement_correct = False
 
@@ -143,10 +150,8 @@ class Game:
                  self.timer_show_msg_teams = time.perf_counter()
                  return
             elif self.show_team_id == "B":
-             # terminou time B, encerra a exibição
+             # terminou time B — is_time_to_start será definido pela fase de treinamento
              self.showed_players_teams = True
-             self.is_time_to_start = True
-             self.timer_is_time_to_start = time.perf_counter()
 
 
     def time_to_start(self):
@@ -335,6 +340,70 @@ class Game:
             self.is_showing_next_round = False
             self.player_found = False
         
+    def show_training_phase(self):
+        if not self.is_training:
+            self.is_training = True
+            self._training_idx = 0
+            self._training_state = "positioning"
+            self._training_timer = 0.0
+            self._training_feedback_msg = ""
+
+        self.my_identifier.process_image(self.real_image)
+
+        if self._training_state == "complete":
+            delta = time.perf_counter() - self._training_timer
+            self.img = apply_filter(self.img, colors.GREEN)
+            self.img = draw_text_top_center(self.img, "FASE DE TREINAMENTO")
+            self.img = draw_message_center_screen(self.img, "Preparado! Vamos começar!")
+            if delta >= 2.0:
+                self.training_done = True
+                self.is_time_to_start = True
+                self.timer_show_players_teams = time.perf_counter()
+            return
+
+        current_mov = _TRAINING_MOVEMENTS[self._training_idx]
+
+        if not self.my_identifier.points:
+            self.img = draw_text_top_center(self.img, "FASE DE TREINAMENTO")
+            self.img = draw_message_center_screen(self.img, "Posicione-se corretamente!", colors.RED)
+            return
+
+        if self._training_state == "positioning":
+            self.img = show_image_movements(self.img, current_mov)
+            self.img = draw_text_top_center(self.img, "FASE DE TREINAMENTO")
+            if self.my_identifier.is_correct_positioned():
+                self._training_state = "waiting"
+                self.my_identifier._jump_confirm_count = 0
+                self.my_identifier._crouch_confirm_count = 0
+            return
+
+        self.img = show_image_movements(self.img, current_mov)
+        self.img = draw_text_top_center(self.img, "FASE DE TREINAMENTO")
+
+        if self._training_state == "waiting":
+            self.my_identifier.command = current_mov
+            if self.my_identifier.identify():
+                self._training_state = "feedback"
+                self._training_timer = time.perf_counter()
+                self._training_feedback_msg = random.choice(_TRAINING_FEEDBACK_MSGS)
+                self.my_identifier._jump_confirm_count = 0
+                self.my_identifier._crouch_confirm_count = 0
+
+        elif self._training_state == "feedback":
+            delta = time.perf_counter() - self._training_timer
+            self.img = apply_filter(self.img, colors.GREEN)
+            self.img = draw_text_top_center(self.img, "FASE DE TREINAMENTO")
+            self.img = draw_message_center_screen(self.img, self._training_feedback_msg)
+            if delta >= 1.5:
+                self._training_idx += 1
+                if self._training_idx >= len(_TRAINING_MOVEMENTS):
+                    self._training_state = "complete"
+                    self._training_timer = time.perf_counter()
+                else:
+                    self._training_state = "waiting"
+                    self.my_identifier._jump_confirm_count = 0
+                    self.my_identifier._crouch_confirm_count = 0
+
     def Show(self, width: int, height: int, game_mode:IGameMode):
         self.game_mode = game_mode
         
@@ -392,7 +461,10 @@ class Game:
                     
                 elif not self.showed_players_teams:
                     self.show_player_teams()
-                    
+
+                elif not self.training_done:
+                    self.show_training_phase()
+
                 elif self.is_time_to_start:
                     self.time_to_start()
                         

@@ -464,6 +464,16 @@ def show_error_feedback(img: MatLike, detected: int, expected: int) -> MatLike:
     return np.asarray(pil_image)
 
 
+def draw_text_top_center(img: MatLike, text: str, color: tuple = colors.WHITE, font_size: int = 45) -> MatLike:
+    pil_image = Image.fromarray(img)
+    font = ImageFont.truetype(FONT_ARIAL_PATH, size=font_size)
+    draw_obj = ImageDraw.Draw(pil_image)
+    _, _, text_width, text_height = font.getbbox(text=text, stroke_width=2)
+    textX = int((img.shape[1] - text_width) / 2)
+    draw_obj.text((textX, 18), text, font=font, stroke_width=2, stroke_fill=colors.BLACK, fill=color)
+    return np.asarray(pil_image)
+
+
 def draw_text_top_right(img: MatLike, order: str) ->MatLike:
     pil_image = Image.fromarray(img)
 
