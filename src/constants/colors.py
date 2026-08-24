@@ -12,6 +12,10 @@ GREEN = (0, 255, 0)
 GRAY = (200, 200, 200)
 YELLOW = (0, 255, 255)
 
+GOLD = (0, 215, 255)        # BGR de (255, 215, 0) — mensagens de acerto
+SOFT_GREEN = (100, 200, 100)  # fundo de feedback positivo
+WARM_RED = (60, 60, 220)    # BGR de (220, 60, 60) — fundo de erro suave
+
 COLOR_NAME = {
     RED: "VERMELHO",
     BLUE_LIGHT: "AZUL",

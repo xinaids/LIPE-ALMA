@@ -20,7 +20,7 @@ class SequenceGame(IGameMode, Game):
         Game.__init__(self)
 
         self._mode = SEQUENCE
-        self._list_movements = [LEFT_HAND, RIGHT_HAND, JUMP, CROUCH]
+        self._list_movements = [LEFT_HAND, RIGHT_HAND, OPEN_ARMS, LIGHT_SQUAT]
 
         self.is_showing_repeat_msg = False
         self.timer_show_msg_teams = time.perf_counter()

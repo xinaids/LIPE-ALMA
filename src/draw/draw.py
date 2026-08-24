@@ -60,7 +60,7 @@ def draw_message(img: MatLike, message: str):
 
     pil_image = Image.fromarray(img)
 
-    font = ImageFont.truetype(FONT_ARIAL_PATH, size=15)
+    font = ImageFont.truetype(FONT_ARIAL_PATH, size=21)
     draw = ImageDraw.Draw(pil_image)
 
     draw.text((15, 5), message, font=font, stroke_width=1, stroke_fill=colors.BLACK)
@@ -76,7 +76,7 @@ def draw_message_position(img: MatLike, message: str, position: tuple[int, int],
 
     pil_image = Image.fromarray(img_copy)
 
-    font = ImageFont.truetype(FONT_ARIAL_PATH, size=18)
+    font = ImageFont.truetype(FONT_ARIAL_PATH, size=25)
     draw = ImageDraw.Draw(pil_image)
     
     _, _, text_width, text_height = font.getbbox(text=message, stroke_width=1)
@@ -134,7 +134,7 @@ def show_image_movements(img: MatLike, command: int = None, seq: int = None, col
     else:
         order = ""
     
-    font = ImageFont.truetype(FONT_ARIAL_PATH, size=25)
+    font = ImageFont.truetype(FONT_ARIAL_PATH, size=35)
     draw = ImageDraw.Draw(pil_image)
 
     _, _, text_width, text_height = font.getbbox(text=order, stroke_width=1)
@@ -176,7 +176,7 @@ def show_player_image(img: MatLike, seq_player: int = None, text_color: tuple[in
     pil_image = Image.fromarray(img)
 
     if len(order) > 0:
-        font = ImageFont.truetype(FONT_ARIAL_PATH, size=35)
+        font = ImageFont.truetype(FONT_ARIAL_PATH, size=49)
         draw = ImageDraw.Draw(pil_image)
 
         _, _, text_width, text_height = font.getbbox(text=order, stroke_width=1)
@@ -199,7 +199,7 @@ def show_score(img: MatLike, scoreA: int, scoreB: int) -> MatLike:
     pil_image = Image.fromarray(img)
 
     # Fonte e estilo
-    font = ImageFont.truetype(FONT_ARIAL_PATH, size=55)
+    font = ImageFont.truetype(FONT_ARIAL_PATH, size=77)
     draw = ImageDraw.Draw(pil_image)
 
     # Texto para os scores
@@ -257,9 +257,9 @@ def show_correct_position(img: MatLike)->MatLike:
 
     pil_image = Image.fromarray(image_filter)
 
-    order = "SE POSICIONE CORRETAMENTE"
+    order = "Se posicione corretamente"
 
-    font = ImageFont.truetype(FONT_ARIAL_PATH, size=20)
+    font = ImageFont.truetype(FONT_ARIAL_PATH, size=28)
     draw = ImageDraw.Draw(pil_image)
 
     _, _, text_width, text_height = font.getbbox(text=order, stroke_width=1)
@@ -302,7 +302,7 @@ def draw_message_center_screen(img: MatLike, text: str, color:tuple[3] = colors.
 
     pil_image = Image.fromarray(img)
 
-    font = ImageFont.truetype(FONT_ARIAL_PATH, size=70)
+    font = ImageFont.truetype(FONT_ARIAL_PATH, size=98)
     draw = ImageDraw.Draw(pil_image)
 
     _, _, text_width, text_height = font.getbbox(text=text, stroke_width=1)
@@ -320,7 +320,7 @@ def write_message(img: MatLike, message: str) -> MatLike:
     pil_image = Image.fromarray(img)
 
     # Draw non-ascii text onto image
-    font = ImageFont.truetype(FONT_ARIAL_PATH, size=40)
+    font = ImageFont.truetype(FONT_ARIAL_PATH, size=56)
     draw = ImageDraw.Draw(pil_image)
 
     _, _, text_width, text_height = font.getbbox(text=message, stroke_width=1)
@@ -444,15 +444,15 @@ def show_error_feedback(img: MatLike, detected: int, expected: int) -> MatLike:
 
     pil_image = Image.fromarray(img_copy)
     draw_pil = ImageDraw.Draw(pil_image)
-    font_label = ImageFont.truetype(FONT_ARIAL_PATH, size=36)
-    font_name  = ImageFont.truetype(FONT_ARIAL_PATH, size=28)
+    font_label = ImageFont.truetype(FONT_ARIAL_PATH, size=50)
+    font_name  = ImageFont.truetype(FONT_ARIAL_PATH, size=39)
 
     label_y = img_y - 55
     name_y  = img_y + img_size + 10
 
     for x, label, name in [
         (left_x,  "Você fez:",    mov.MOVEMENTS_ORDER.get(detected, "?")),
-        (right_x, "Deveria ser:", mov.MOVEMENTS_ORDER.get(expected, "?")),
+        (right_x, "Não foi dessa vez! Tente assim:", mov.MOVEMENTS_ORDER.get(expected, "?")),
     ]:
         for text, font, y in [(label, font_label, label_y), (name, font_name, name_y)]:
             _, _, tw, _ = font.getbbox(text)
@@ -464,7 +464,7 @@ def show_error_feedback(img: MatLike, detected: int, expected: int) -> MatLike:
     return np.asarray(pil_image)
 
 
-def draw_text_top_center(img: MatLike, text: str, color: tuple = colors.WHITE, font_size: int = 45) -> MatLike:
+def draw_text_top_center(img: MatLike, text: str, color: tuple = colors.WHITE, font_size: int = 63) -> MatLike:
     pil_image = Image.fromarray(img)
     font = ImageFont.truetype(FONT_ARIAL_PATH, size=font_size)
     draw_obj = ImageDraw.Draw(pil_image)
@@ -479,7 +479,7 @@ def draw_text_top_right(img: MatLike, order: str) ->MatLike:
 
     img_height, img_width, _ = img.shape
 
-    font = ImageFont.truetype(FONT_ARIAL_PATH, size=20)
+    font = ImageFont.truetype(FONT_ARIAL_PATH, size=28)
 
     _, _, text_width, text_height = font.getbbox(text=order, stroke_width=1)
 

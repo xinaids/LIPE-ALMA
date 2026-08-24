@@ -1,37 +1,28 @@
-<<<<<<< HEAD
-# 🤖 LIPE-Laboratorio-Inteligente-para-a-Educacao
+# LIPE-ALMA — Atividade Lúdica para Memória Ativa
 
-<div style="display: flex; align-items: center;"> 
-    <img src=".\images\robot\lipe.png" min-width="150px" max-width="150px" width="150px" align="right" alt="Computador iuriCode">
-<span><strong>Lipe 1.0</strong> é um jogo digital educacional interativo que utiliza técnicas de reconhecimento facial detecção de movimentos e comandos de voz para ensinar os pilares do Pensamento Computacional a alunos dos anos iniciais do ensino fundamental.  
-</span>
-</div>
+LIPE-ALMA é um jogo digital para estimular coordenação motora e memória em idosos, usando reconhecimento de pose via webcam. O jogador segue sequências de movimentos exibidas na tela, executando-as com o próprio corpo. O jogo detecta os movimentos automaticamente e fornece feedback visual imediato, encorajando o participante a cada etapa.
 
 ---
 
-## 📋 Pré-requisitos
+## Pré-requisitos
 
-Antes de executar o jogo, certifique-se de que você possui:
-
-- Python 3.8 ou superior
+- Python 3.11
 - pip (gerenciador de pacotes do Python)
 - Uma webcam funcional
-- Um microfone (opcional)
-- Desktop Development with C++ (Disponível ao instalar o Visual Studio)
+- Desktop Development with C++ (disponível ao instalar o Visual Studio)
+
 ---
 
-## 🛠️ Instalação
+## Instalação
 
 ### 1. Clone o repositório
 
 ```bash
-git clone https://github.com/iagoid/LIPE-Laboratorio-Inteligente-para-a-Educacao
-cd LIPE-Laboratorio-Inteligente-para-a-Educacao
+git clone https://github.com/MateusSilver/LIPE-ALMA
+cd LIPE-ALMA
 ```
 
-### 📦 2. Crie e ative um ambiente virtual (opcional, mas recomendado)
-
-Criar um ambiente virtual ajuda a isolar as dependências do projeto e evita conflitos com outras bibliotecas instaladas no sistema.
+### 2. Crie e ative um ambiente virtual (recomendado)
 
 ```bash
 # Criação
@@ -42,32 +33,43 @@ venv\Scripts\activate
 
 # Ativação no Linux/macOS
 source venv/bin/activate
+```
 
-# Instalação das bibliotecas
+### 3. Instale as dependências
+
+```bash
 pip install -r requirements.txt
 ```
 
-⚠️ *Se ocorrer algum erro ao localizar a biblioteca, instale-a com o seguinte comando:*
-
-```bash
-pip install NOME_BIBLIOTECA
-```
-
-### 🚀 3. Executando o jogo
-
-Para rodar o jogo execute no terminal
+### 4. Execute o jogo
 
 ```bash
 python main.py
 ```
 
-💡 Para remover os jogadores registrados, delete o aquivo ***/database/database.db***
+---
+
+## Movimentos
+
+| Movimento | Descrição |
+|---|---|
+| Braço Esquerdo | Levante o braço esquerdo acima da cabeça |
+| Braço Direito | Levante o braço direito acima da cabeça |
+| Abra os Braços | Abra os dois braços para os lados (posição em T) |
+| Dobre os Joelhos | Dobre levemente os joelhos (agache suave) |
 
 ---
 
-### 🤝 Agradecimentos
-A todos os professores, bolsistas, voluntários e colegas que contribuíram com ideias, testes e feedbacks durante o desenvolvimento deste projeto.
+## Como jogar
 
-=======
-# LIFE-Lab-of-Artificial-Inteligence-for-Education
->>>>>>> 7d43cd0ddf7f2ef51cc51ff5fc24b104ce255b6c
+1. Posicione-se na frente da webcam de forma que seu corpo inteiro apareça na tela.
+2. O jogo exibe uma fase de aquecimento: siga cada movimento no seu ritmo.
+3. Após o aquecimento, o jogo mostra sequências de movimentos para memorizar e executar.
+4. A cada acerto você avança; não se preocupe com erros — basta tentar novamente!
+
+---
+
+## Observações
+
+- Para remover os jogadores registrados, delete o arquivo `database/database.db`.
+- Os logs de execução ficam em `execucoes.log` e as imagens de log em `LogsImages/`.

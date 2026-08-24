@@ -24,7 +24,7 @@ class ConditionGame(IGameMode, Game):
         Game.__init__(self)
 
         self._mode = CONDITION
-        self._list_movements = [LEFT_HAND, RIGHT_HAND, JUMP, CROUCH]
+        self._list_movements = [LEFT_HAND, RIGHT_HAND, OPEN_ARMS, LIGHT_SQUAT]
 
         self.is_showing_representation = False
         self.is_showed_representation = False
@@ -104,8 +104,8 @@ class ConditionGame(IGameMode, Game):
         self.move_in_colors = {
             LEFT_HAND: RED,
             RIGHT_HAND: BLUE,
-            JUMP: GREEN,
-            CROUCH: YELLOW,
+            OPEN_ARMS: GREEN,
+            LIGHT_SQUAT: YELLOW,
         }
 
         # for mov in MOVEMENTS:

@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(python3 *)",
-      "Bash(iconv -f UTF-16LE -t UTF-8 requirements.txt)"
+      "Bash(iconv -f UTF-16LE -t UTF-8 requirements.txt)",
+      "PowerShell(Copy-Item *)"
     ]
   }
 }

@@ -36,8 +36,14 @@ from src.interfaces.game_mode import IGameMode
 
 screen_name = "Jogo de Movimentos"
 
-_TRAINING_MOVEMENTS = [mov.LEFT_HAND, mov.RIGHT_HAND, mov.JUMP, mov.CROUCH]
-_TRAINING_FEEDBACK_MSGS = ["Muito bem!", "Ótimo!", "Perfeito!", "Excelente!"]
+_TRAINING_MOVEMENTS = [mov.LEFT_HAND, mov.RIGHT_HAND, mov.OPEN_ARMS, mov.LIGHT_SQUAT]
+_TRAINING_FEEDBACK_MSGS = [
+    "Muito bem! Continue assim!",
+    "Ótimo movimento!",
+    "Parabéns, você conseguiu!",
+    "Excelente! Você está indo bem!",
+    "Perfeito! Continue se movendo!",
+]
 
 class Game:
     def __init__(self):       
@@ -279,8 +285,9 @@ class Game:
         self.num_circles = 0
         self.my_identifier.reset_seq_command()
 
-        self.number_movements += 1
-        
+        if self.number_movements < MAX_NUMBER_MOVEMENTS:
+            self.number_movements += 1
+
         for u in self.list_players:
             u.Movements.append(random.randint(1, len(self.game_mode.list_movements)))
             self.my_identifier.list_commands = u.Movements
@@ -344,21 +351,29 @@ class Game:
         if not self.is_training:
             self.is_training = True
             self._training_idx = 0
-            self._training_state = "positioning"
-            self._training_timer = 0.0
+            self._training_state = "intro"
+            self._training_timer = time.perf_counter()
             self._training_feedback_msg = ""
 
         self.my_identifier.process_image(self.real_image)
 
         if self._training_state == "complete":
             delta = time.perf_counter() - self._training_timer
-            self.img = apply_filter(self.img, colors.GREEN)
+            self.img = apply_filter(self.img, colors.SOFT_GREEN)
             self.img = draw_text_top_center(self.img, "FASE DE TREINAMENTO")
-            self.img = draw_message_center_screen(self.img, "Preparado! Vamos começar!")
+            self.img = draw_message_center_screen(self.img, "Muito bem! Você está pronto. Vá no seu ritmo!")
             if delta >= 2.0:
                 self.training_done = True
                 self.is_time_to_start = True
                 self.timer_show_players_teams = time.perf_counter()
+            return
+
+        if self._training_state == "intro":
+            delta = time.perf_counter() - self._training_timer
+            self.img = draw_text_top_center(self.img, "FASE DE TREINAMENTO")
+            self.img = draw_message_center_screen(self.img, "Vamos aquecer! Siga os movimentos no seu ritmo.")
+            if delta >= 3.0:
+                self._training_state = "positioning"
             return
 
         current_mov = _TRAINING_MOVEMENTS[self._training_idx]
@@ -373,7 +388,17 @@ class Game:
             self.img = draw_text_top_center(self.img, "FASE DE TREINAMENTO")
             if self.my_identifier.is_correct_positioned():
                 self._training_state = "waiting"
-                self.my_identifier._jump_confirm_count = 0
+                self.my_identifier._open_arms_confirm_count = 0
+                self.my_identifier._crouch_confirm_count = 0
+            return
+
+        if self._training_state == "next_transition":
+            delta = time.perf_counter() - self._training_timer
+            self.img = draw_text_top_center(self.img, "FASE DE TREINAMENTO")
+            self.img = draw_message_center_screen(self.img, "Agora vamos para o próximo!")
+            if delta >= 1.0:
+                self._training_state = "waiting"
+                self.my_identifier._open_arms_confirm_count = 0
                 self.my_identifier._crouch_confirm_count = 0
             return
 
@@ -386,23 +411,22 @@ class Game:
                 self._training_state = "feedback"
                 self._training_timer = time.perf_counter()
                 self._training_feedback_msg = random.choice(_TRAINING_FEEDBACK_MSGS)
-                self.my_identifier._jump_confirm_count = 0
+                self.my_identifier._open_arms_confirm_count = 0
                 self.my_identifier._crouch_confirm_count = 0
 
         elif self._training_state == "feedback":
             delta = time.perf_counter() - self._training_timer
-            self.img = apply_filter(self.img, colors.GREEN)
+            self.img = apply_filter(self.img, colors.SOFT_GREEN)
             self.img = draw_text_top_center(self.img, "FASE DE TREINAMENTO")
             self.img = draw_message_center_screen(self.img, self._training_feedback_msg)
-            if delta >= 1.5:
+            if delta >= 2.5:
                 self._training_idx += 1
                 if self._training_idx >= len(_TRAINING_MOVEMENTS):
                     self._training_state = "complete"
                     self._training_timer = time.perf_counter()
                 else:
-                    self._training_state = "waiting"
-                    self.my_identifier._jump_confirm_count = 0
-                    self.my_identifier._crouch_confirm_count = 0
+                    self._training_state = "next_transition"
+                    self._training_timer = time.perf_counter()
 
     def Show(self, width: int, height: int, game_mode:IGameMode):
         self.game_mode = game_mode
@@ -504,8 +528,8 @@ class Game:
                         elif self.is_movement_wrong:
                             add_score((self.number_movements, self.expected_player.Name))
                             delta = time.perf_counter() - self.timer_is_movement_wrong
-                            if delta < 4:
-                                self.img = apply_filter(self.img, colors.RED)
+                            if delta < 6:
+                                self.img = apply_filter(self.img, colors.WARM_RED)
                                 if self.my_identifier.identified_movement is not None:
                                     self.img = show_error_feedback(
                                         self.img,
