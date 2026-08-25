@@ -361,7 +361,7 @@ class Game:
             delta = time.perf_counter() - self._training_timer
             self.img = apply_filter(self.img, colors.SOFT_GREEN)
             self.img = draw_text_top_center(self.img, "FASE DE TREINAMENTO")
-            self.img = draw_message_center_screen(self.img, "Muito bem! Você está pronto. Vá no seu ritmo!")
+            self.img = draw_message_center_screen(self.img, "Muito bem! Vamos começar!", font_fraction=0.047)
             if delta >= 2.0:
                 self.training_done = True
                 self.is_time_to_start = True
@@ -371,7 +371,7 @@ class Game:
         if self._training_state == "intro":
             delta = time.perf_counter() - self._training_timer
             self.img = draw_text_top_center(self.img, "FASE DE TREINAMENTO")
-            self.img = draw_message_center_screen(self.img, "Vamos aquecer! Siga os movimentos no seu ritmo.")
+            self.img = draw_message_center_screen(self.img, "Siga no seu ritmo!", font_fraction=0.047)
             if delta >= 3.0:
                 self._training_state = "positioning"
             return
@@ -395,7 +395,7 @@ class Game:
         if self._training_state == "next_transition":
             delta = time.perf_counter() - self._training_timer
             self.img = draw_text_top_center(self.img, "FASE DE TREINAMENTO")
-            self.img = draw_message_center_screen(self.img, "Agora vamos para o próximo!")
+            self.img = draw_message_center_screen(self.img, "Próximo movimento!")
             if delta >= 1.0:
                 self._training_state = "waiting"
                 self.my_identifier._open_arms_confirm_count = 0

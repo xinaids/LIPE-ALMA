@@ -14,6 +14,13 @@ from src.datatypes.confetti import Confetti
 from typing import List
 
 
+def font_size_for(img: MatLike, base_fraction: float) -> int:
+    """Retorna tamanho de fonte proporcional à largura da imagem.
+    base_fraction: fração da largura (ex: 0.05 = 5% da largura)
+    """
+    return max(16, int(img.shape[1] * base_fraction))
+
+
 # TODO: Revisar todas os textos mostrados em tela para utilizar o PIL
 def draw_rectangle(img: MatLike, text: str, text_size, position):
     cv2.rectangle(
@@ -60,7 +67,7 @@ def draw_message(img: MatLike, message: str):
 
     pil_image = Image.fromarray(img)
 
-    font = ImageFont.truetype(FONT_ARIAL_PATH, size=21)
+    font = ImageFont.truetype(FONT_ARIAL_PATH, size=font_size_for(img, 0.016))
     draw = ImageDraw.Draw(pil_image)
 
     draw.text((15, 5), message, font=font, stroke_width=1, stroke_fill=colors.BLACK)
@@ -134,7 +141,7 @@ def show_image_movements(img: MatLike, command: int = None, seq: int = None, col
     else:
         order = ""
     
-    font = ImageFont.truetype(FONT_ARIAL_PATH, size=35)
+    font = ImageFont.truetype(FONT_ARIAL_PATH, size=font_size_for(image, 0.027))
     draw = ImageDraw.Draw(pil_image)
 
     _, _, text_width, text_height = font.getbbox(text=order, stroke_width=1)
@@ -199,7 +206,7 @@ def show_score(img: MatLike, scoreA: int, scoreB: int) -> MatLike:
     pil_image = Image.fromarray(img)
 
     # Fonte e estilo
-    font = ImageFont.truetype(FONT_ARIAL_PATH, size=77)
+    font = ImageFont.truetype(FONT_ARIAL_PATH, size=font_size_for(img, 0.060))
     draw = ImageDraw.Draw(pil_image)
 
     # Texto para os scores
@@ -297,12 +304,12 @@ def draw_face_positioning(img: MatLike) -> MatLike:
     return cv2.bitwise_and(img, img, mask=mask)
 
 
-def draw_message_center_screen(img: MatLike, text: str, color:tuple[3] = colors.BLACK) -> MatLike:
+def draw_message_center_screen(img: MatLike, text: str, color:tuple[3] = colors.BLACK, font_fraction: float = 0.077) -> MatLike:
     img_height, img_width, _ = img.shape
 
     pil_image = Image.fromarray(img)
 
-    font = ImageFont.truetype(FONT_ARIAL_PATH, size=98)
+    font = ImageFont.truetype(FONT_ARIAL_PATH, size=font_size_for(img, font_fraction))
     draw = ImageDraw.Draw(pil_image)
 
     _, _, text_width, text_height = font.getbbox(text=text, stroke_width=1)
@@ -320,7 +327,7 @@ def write_message(img: MatLike, message: str) -> MatLike:
     pil_image = Image.fromarray(img)
 
     # Draw non-ascii text onto image
-    font = ImageFont.truetype(FONT_ARIAL_PATH, size=56)
+    font = ImageFont.truetype(FONT_ARIAL_PATH, size=font_size_for(img, 0.044))
     draw = ImageDraw.Draw(pil_image)
 
     _, _, text_width, text_height = font.getbbox(text=message, stroke_width=1)
@@ -444,8 +451,8 @@ def show_error_feedback(img: MatLike, detected: int, expected: int) -> MatLike:
 
     pil_image = Image.fromarray(img_copy)
     draw_pil = ImageDraw.Draw(pil_image)
-    font_label = ImageFont.truetype(FONT_ARIAL_PATH, size=50)
-    font_name  = ImageFont.truetype(FONT_ARIAL_PATH, size=39)
+    font_label = ImageFont.truetype(FONT_ARIAL_PATH, size=font_size_for(img, 0.039))
+    font_name  = ImageFont.truetype(FONT_ARIAL_PATH, size=font_size_for(img, 0.030))
 
     label_y = img_y - 55
     name_y  = img_y + img_size + 10
@@ -464,9 +471,9 @@ def show_error_feedback(img: MatLike, detected: int, expected: int) -> MatLike:
     return np.asarray(pil_image)
 
 
-def draw_text_top_center(img: MatLike, text: str, color: tuple = colors.WHITE, font_size: int = 63) -> MatLike:
+def draw_text_top_center(img: MatLike, text: str, color: tuple = colors.WHITE, font_fraction: float = 0.049) -> MatLike:
     pil_image = Image.fromarray(img)
-    font = ImageFont.truetype(FONT_ARIAL_PATH, size=font_size)
+    font = ImageFont.truetype(FONT_ARIAL_PATH, size=font_size_for(img, font_fraction))
     draw_obj = ImageDraw.Draw(pil_image)
     _, _, text_width, text_height = font.getbbox(text=text, stroke_width=2)
     textX = int((img.shape[1] - text_width) / 2)
