@@ -197,6 +197,29 @@ class Identifier(poses.Poses):
             )
             return True
 
+        if self.command == mov.OPEN_ARMS:
+            if self.hand_left():
+                self.identified_movement = mov.LEFT_HAND
+                self._marcar_deteccao()
+                self.save_log(
+                    mov.MOVEMENTS_ORDER[self.command],
+                    mov.MOVEMENTS_ORDER[mov.LEFT_HAND],
+                    serial_id,
+                    player_name,
+                )
+                return False
+            if self.hand_right():
+                self.identified_movement = mov.RIGHT_HAND
+                self._marcar_deteccao()
+                self.save_log(
+                    mov.MOVEMENTS_ORDER[self.command],
+                    mov.MOVEMENTS_ORDER[mov.RIGHT_HAND],
+                    serial_id,
+                    player_name,
+                )
+                return False
+            return None  # agache/joelhos durante bracos abertos = ignorar
+
         for i, fn in enumerate(self.MOVEMENTS_METHODS):
             if fn():
                 self.identified_movement = i + 1
