@@ -27,6 +27,10 @@ class GameMode:
         self.dialog_screen = DialogScreen()
 
     def Show(self):
+        if not variables.Initial_Game_Dialog_Showed:
+            self.dialog_screen.Show(*pygame.display.get_window_size(), DIALOG_START_GAME)
+            variables.Initial_Game_Dialog_Showed = True
+
         btn_back = pygame_gui.elements.UIButton(
             pygame.Rect(5, 5, 200, 50),
             "VOLTAR",

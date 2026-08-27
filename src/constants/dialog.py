@@ -7,111 +7,49 @@ CHARACTER_DIALOG2 = "images" + os.sep + "robot" + os.sep + "lipe2.png"
 
 DIALOG_START_GAME = [
     Dialog(
-        Text="Olá, eu sou o Lipe, o robô do Laboratório Inteligente voltado para Educação",
+        Text="Olá! Eu sou o Lipe, seu parceiro de exercícios.",
         Character_Dir=CHARACTER_DIALOG,
     ),
     Dialog(
-        Text="O Lipe, como todos os outros robôs, não sabe o que fazer sozinho.",
+        Text="Vamos fazer alguns movimentos juntos para ativar corpo e mente.",
         Character_Dir=CHARACTER_DIALOG,
-        Italic=True,
     ),
     Dialog(
-        Text="Para que ele consiga realizar tarefas, os programadores precisam ensiná-lo usando algo chamado algoritmo.",
+        Text="Vou mostrar um movimento na tela — observe com atenção.",
         Character_Dir=CHARACTER_DIALOG,
-        Italic=True,
     ),
     Dialog(
-        Text="Um algoritmo é escrito através de uma linguagem especial que o computador do robô consegue entender.",
-        Character_Dir=CHARACTER_DIALOG2,
-        Italic=True,
+        Text="Depois é sua vez de repetir, no seu ritmo.",
+        Character_Dir=CHARACTER_DIALOG,
     ),
     Dialog(
-        Text="Essa linguagem é chamada de código.",
+        Text="Não se preocupe em errar — o importante é se mover e se divertir!",
         Character_Dir=CHARACTER_DIALOG,
-        Italic=True,
     ),
     Dialog(
-        Text="O computador lê o código e segue os passos do algoritmo.",
+        Text="Vamos começar?",
         Character_Dir=CHARACTER_DIALOG,
-        Italic=True,
-    ),
-    Dialog(
-        Text="Mas temos um problema, o Lipe bateu a cabeça, o que prejudicou sua memória.",
-        Character_Dir=CHARACTER_DIALOG,
-        Italic=True,
-        Animations=[Animation(AnimateObj=ExplosionAnimation(), Position=(300, -100), Scale = 0.5)],
-    ),
-    Dialog(
-        Text="Ele não lembra como seguir os passos de um algoritmo.",
-        Character_Dir=CHARACTER_DIALOG,
-        Italic=True,
-        Animations=[Animation(AnimateObj=ExplosionAnimation(), Position=(300, -100), Scale = 0.5)],
-    ),
-    Dialog(
-        Text="Para ajudá-lo vocês deverão executar os passos de alguns algoritmos.",
-        Character_Dir=CHARACTER_DIALOG,
-        Italic=True,
-    ),
-    Dialog(
-        Text="Vamos lá?",
-        Character_Dir=CHARACTER_DIALOG,
-        Italic=True,
         Bold=True,
     ),
 ]
 
 DIALOG_SEQUENCE = [
     Dialog(
-        Text="Sequência é tipo uma receita!",
+        Text="Vou mostrar uma sequência de movimentos.",
         Character_Dir=CHARACTER_DIALOG,
     ),
     Dialog(
-        Text="Primeiro faz isso, depois aquilo... sempre na ordem certinha!",
+        Text="Observe cada um com calma.",
         Character_Dir=CHARACTER_DIALOG,
     ),
     Dialog(
-        Text="Imagine que você tem uma missão: ajudar o robô a descer o escorregador!",
+        Text="Depois, repita na mesma ordem que você viu.",
         Character_Dir=CHARACTER_DIALOG,
     ),
     Dialog(
-        Text="Você seguirá a seguinte ordem:",
+        Text="Fique à vontade para ir devagar. Vamos lá!",
         Character_Dir=CHARACTER_DIALOG,
-    ),
-    Dialog(
-        Text="1 - Ande até o escorregador.",
-        Character_Dir=CHARACTER_DIALOG,
-    ),
-    Dialog(
-        Text="2 - Suba as escadinhas.",
-        Character_Dir=CHARACTER_DIALOG,
-    ),
-    Dialog(
-        Text="3 - Sente no topo.",
-        Character_Dir=CHARACTER_DIALOG,
-    ),
-    Dialog(
-        Text="4 - ESCORREGA!!!",
-        Character_Dir=CHARACTER_DIALOG,
-    ),
-    Dialog(
-        Text="Se você fizer fora da ordem, dá erro",
-        Character_Dir=CHARACTER_DIALOG,
-    ),
-    Dialog(
-        Text="Pronto pra praticar?",
-        Character_Dir=CHARACTER_DIALOG,
-    ),
-    Dialog(
-        Text="Primeiro serão mostrados em tela os movimentos a serem realizados",
-        Character_Dir=CHARACTER_DIALOG,
-    ),
-    Dialog(
-        Text="Memorize os movimentos e depois repitá-os na ordem que eles apareceram.",
-        Character_Dir=CHARACTER_DIALOG,
-    ),
-    Dialog(
-        Text="Vamos lá!",
-        Character_Dir=CHARACTER_DIALOG,
+        Bold=True,
     ),
 ]
 

@@ -1,6 +1,6 @@
 from src.screens.players.players import PlayerScreen
 from src.screens.teams.teams import TeamsScreen
-from src.screens.home.home import HomeScreen
+from src.screens.game_mode.game_mode import GameMode
 
 if __name__ == "__main__":
     cadastro = PlayerScreen()
@@ -9,5 +9,5 @@ if __name__ == "__main__":
     if jogadores:
         teams = TeamsScreen(jogadores)
         if teams.Show() == "jogar":
-            home = HomeScreen(jogadores)
-            home.Show()
+            game_mode = GameMode()
+            game_mode.Show()
