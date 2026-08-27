@@ -74,12 +74,18 @@ class PlayerScreen:
 
             
             y_base = self.input_box.y + 60
-            for i, nome in enumerate(self.nomes_jogadores[-5:]):  # mostra últimos 5
-                nome_render = self.fonte.render(f"{i+1}. {nome}", True, (200, 200, 200))
-                self.tela.blit(nome_render, (self.input_box.x, y_base + i * 30))
+            jogadores_exibir = self.nomes_jogadores[-16:]
+            offset = max(0, len(self.nomes_jogadores) - 16)
+            for i, nome in enumerate(jogadores_exibir):
+                col = i // 8
+                row = i % 8
+                x = self.input_box.x + col * 420
+                y = y_base + row * 32
+                nome_render = self.fonte.render(f"{offset + i + 1}. {nome}", True, (200, 200, 200))
+                self.tela.blit(nome_render, (x, y))
 
-            
-            botao_concluir = pygame.Rect(1050, 400, 160, 50)
+
+            botao_concluir = pygame.Rect(1050, 680, 160, 50)
             cor = (0, 200, 0) if botao_concluir.collidepoint(pygame.mouse.get_pos()) else (0, 255, 0)
             pygame.draw.rect(self.tela, cor, botao_concluir)
             texto = self.fonte.render("Concluir", True, (255, 255, 255))

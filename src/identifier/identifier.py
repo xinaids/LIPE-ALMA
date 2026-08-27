@@ -118,8 +118,10 @@ class Identifier(poses.Poses):
 
     def open_arms_identifier(self) -> bool:
         shoulder_y = (self.shoulderRY + self.shoulderLY) / 2
-        arms_wide = abs(self.handRX - self.handLX) > 0.45
-        arms_level = (self.handLY < shoulder_y + 0.05) and (self.handRY < shoulder_y + 0.05)
+        arms_wide = abs(self.handRX - self.handLX) > 0.35
+        left_level = self.handLY < shoulder_y + 0.15
+        right_level = self.handRY < shoulder_y + 0.15
+        arms_level = left_level or right_level
         if arms_wide and arms_level:
             self._open_arms_confirm_count += 1
             self._crouch_confirm_count = 0
