@@ -77,7 +77,7 @@ class SequenceGame(IGameMode, Game):
 
 
     def start(self, width: int, height: int):
-        self.Show(width, height, self)
+        return self.Show(width, height, self)
 
     @property
     def mode(self) -> int:

@@ -18,6 +18,7 @@ from src.constants.constants import *
 from src.datatypes.confetti import Confetti
 from src.constants.game_modes import *
 from src.datatypes.player import Player
+from src.globals import variables
 from src.draw.draw import (
     draw_message,
     draw_circles,
@@ -49,7 +50,7 @@ class Game:
     def __init__(self):       
         self.player_found = False
         self.is_showing_next_round = False
-        self.number_movements = INITIAL_NUMBER_MOVEMENTS
+        self.number_movements = variables.difficulty_movements
         
         self.score_timeA = 0
         self.score_timeB = 0
@@ -248,13 +249,9 @@ class Game:
             self.list_players = [p for p in self.list_players if p.Name != previous_name]
                 
         if not next_player:
-            if self.is_last_round():
-                self.is_end_game = True
-                self.timer_show_score = time.perf_counter()
-                return
-            
-            self.add_new_movement()
-            next_player = self.list_players[0]
+            self.is_end_game = True
+            self.timer_show_score = time.perf_counter()
+            return
             
         if next_player.Movements is None:
             self.my_identifier.sort_movements(self.game_mode.list_movements, self.number_movements)
@@ -277,15 +274,15 @@ class Game:
             self.img[:, :] = colors.BLUE_LIGHT
             self.img = show_score(self.img, self.score_timeA * 5, self.score_timeB * 5)
         else:
+            self._round_finished = True
             self.is_running = False
-            print("Acabou")
         
     def add_new_movement(self):
         self.mov_showing_seq = 0
         self.num_circles = 0
         self.my_identifier.reset_seq_command()
 
-        if self.number_movements < MAX_NUMBER_MOVEMENTS:
+        if self.number_movements < variables.difficulty_movements:
             self.number_movements += 1
 
         for u in self.list_players:
@@ -462,6 +459,7 @@ class Game:
         self.is_end_game = False
         self.showed_players_teams = False
         self.is_running = True
+        self._round_finished = False
 
         with ThreadPoolExecutor(max_workers=4) as self.executor:
             while self.is_running:
@@ -537,7 +535,12 @@ class Game:
                                         self.my_identifier.command,
                                     )
                             else:
-                                self.call_next_player(True)
+                                if self.my_identifier.has_next_movement():
+                                    self.my_identifier.next_movement()
+                                    self.is_movement_wrong = False
+                                    self.timer_next_mov = time.perf_counter()
+                                else:
+                                    self.call_next_player(False)
                         elif self.is_movement_identified:
                             self.movement_correct = self.my_identifier.identify_list_movements(self.serial_id, self.expected_player.Name)
                             self.show_identified_movement()
@@ -551,3 +554,7 @@ class Game:
 
         video_conf.stop()
         cv2.destroyAllWindows()
+        if self._round_finished:
+            from src.screens.end_round.end_round import EndRoundScreen
+            return EndRoundScreen(self.score_timeA * 5, self.score_timeB * 5).Show()
+        return "sair"

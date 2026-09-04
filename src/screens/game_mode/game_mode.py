@@ -76,13 +76,15 @@ class GameMode:
                         
                     elif event.ui_element == btn_sequence:
                         self.game = SequenceGame()
-                        
+
                         if not DEVELOP_MODE and not variables.Is_Traninig_Realized:
                             self.loading = loading.Loading(self.window_surface, self.background)
                             self.loading.Show()
-                            
+
                         self.dialog_screen.Show(*pygame.display.get_window_size(), DIALOG_SEQUENCE)
-                        self.game.start(*pygame.display.get_window_size())
+                        result = self.game.start(*pygame.display.get_window_size())
+                        pygame.event.clear()
+                        return result
 
                     elif event.ui_element == btn_condition:
                         self.game = ConditionGame()
