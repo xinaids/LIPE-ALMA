@@ -1,3 +1,4 @@
+from src.screens.splash.splash import SplashScreen
 from src.screens.players.players import PlayerScreen
 from src.screens.teams.teams import TeamsScreen
 from src.screens.difficulty.difficulty import DifficultyScreen
@@ -5,6 +6,9 @@ from src.screens.game_mode.game_mode import GameMode
 from src.globals import variables
 
 if __name__ == "__main__":
+    splash = SplashScreen()
+    splash.Show()
+
     cadastro = PlayerScreen()
     jogadores = cadastro.Show()
 

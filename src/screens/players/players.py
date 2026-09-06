@@ -13,7 +13,8 @@ class PlayerScreen:
         self.cursor_timer = 0
         self.largura = largura
         self.altura = altura
-        self.tela = pygame.display.set_mode((self.largura, self.altura))
+        self.tela = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+        self.largura, self.altura = self.tela.get_size()
         fundo_tela = pygame.image.load("images/lipe2.0.png").convert()
         self.tela.blit(fundo_tela, (0, 0))
         pygame.display.set_caption("Cadastro de Jogadores")
@@ -98,7 +99,6 @@ class PlayerScreen:
             pygame.display.flip()
             clock.tick(60)
 
-        pygame.quit()
         return self.salvar_jogadores()
 
     def salvar_jogadores(self):
