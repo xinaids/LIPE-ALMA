@@ -2,6 +2,7 @@
 # coding: utf-8
 
 import cv2
+import pygame
 import time
 import random
 from pathlib import Path
@@ -30,6 +31,7 @@ from src.draw.draw import (
     show_error_feedback,
     show_image_movements,
     draw_text_top_center,
+    draw_text_center_y,
 )
 from database.students.students import select_students
 from database.scores.scores import add_score
@@ -164,8 +166,11 @@ class Game:
     def time_to_start(self):
         delta = time.perf_counter() - self.timer_show_players_teams
         if delta < TIME_SHOW_PLAYER:
-            self.img = draw_message_center_screen(self.img, "HORA DE COMEÇAR")
-        
+            h = self.img.shape[0]
+            self.img = draw_text_top_center(self.img, "HORA DE COMEÇAR", font_fraction=0.077)
+            self.img = draw_text_center_y(self.img, "Vamos praticar alguns movimentos juntos.", int(h * 0.42))
+            self.img = draw_text_center_y(self.img, "Fique de frente para a câmera e", int(h * 0.55))
+            self.img = draw_text_center_y(self.img, "siga as instruções na tela.", int(h * 0.63))
         else:
             self.is_time_to_start = False
             self.is_showing_next_player = True
@@ -554,7 +559,31 @@ class Game:
 
         video_conf.stop()
         cv2.destroyAllWindows()
+
         if self._round_finished:
+            _surf = pygame.display.get_surface()
+            if _surf:
+                _surf.fill((20, 20, 30))
+                pygame.display.flip()
+                pygame.event.pump()
+            try:
+                import ctypes
+                user32   = ctypes.windll.user32
+                kernel32 = ctypes.windll.kernel32
+                hwnd = pygame.display.get_wm_info().get("window")
+                if hwnd:
+                    current_thread = kernel32.GetCurrentThreadId()
+                    target_thread  = user32.GetWindowThreadProcessId(hwnd, None)
+                    if current_thread != target_thread:
+                        user32.AttachThreadInput(current_thread, target_thread, True)
+                        user32.SetForegroundWindow(hwnd)
+                        user32.AttachThreadInput(current_thread, target_thread, False)
+                    else:
+                        user32.SetForegroundWindow(hwnd)
+                    user32.ShowWindow(hwnd, 9)  # SW_RESTORE
+                    user32.BringWindowToTop(hwnd)
+            except Exception:
+                pass
             from src.screens.end_round.end_round import EndRoundScreen
             return EndRoundScreen(self.score_timeA * 5, self.score_timeB * 5).Show()
         return "sair"

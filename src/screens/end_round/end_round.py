@@ -7,7 +7,9 @@ class EndRoundScreen:
         self.score_b = score_b
 
     def Show(self) -> str:
-        tela = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+        tela = pygame.display.get_surface()
+        if tela is None:
+            tela = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
         largura, altura = tela.get_size()
         pygame.font.init()
 
@@ -57,6 +59,11 @@ class EndRoundScreen:
 
             tela.fill((20, 20, 30))
 
+            overlay = pygame.Surface((largura, altura))
+            overlay.set_alpha(102)
+            overlay.fill((0, 0, 0))
+            tela.blit(overlay, (0, 0))
+
             surf_titulo = fonte_titulo.render("FIM DE RODADA", True, BRANCO)
             tela.blit(surf_titulo, (largura // 2 - surf_titulo.get_width() // 2, int(altura * 0.08)))
 
@@ -64,6 +71,16 @@ class EndRoundScreen:
             surf_b = fonte_placar.render(f"Time Azul:  {self.score_b}",     True, (80, 120, 220))
             tela.blit(surf_a, (largura // 2 - surf_a.get_width() // 2, int(altura * 0.30)))
             tela.blit(surf_b, (largura // 2 - surf_b.get_width() // 2, int(altura * 0.42)))
+
+            if self.score_a > self.score_b:
+                txt_vencedor, cor_vencedor = "VENCEDOR: TIME VERMELHO!", (220, 80, 80)
+            elif self.score_b > self.score_a:
+                txt_vencedor, cor_vencedor = "VENCEDOR: TIME AZUL!", (80, 120, 220)
+            else:
+                txt_vencedor, cor_vencedor = "EMPATE!", BRANCO
+            fonte_vencedor = pygame.font.Font(None, int(largura * 0.055))
+            surf_venc = fonte_vencedor.render(txt_vencedor, True, cor_vencedor)
+            tela.blit(surf_venc, (largura // 2 - surf_venc.get_width() // 2, int(altura * 0.55)))
 
             for btn, cor_base, linhas in (
                 (btn_continuar, COR_CONTINUAR, ["CONTINUAR"]),

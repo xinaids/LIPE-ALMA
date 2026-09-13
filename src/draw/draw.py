@@ -21,6 +21,28 @@ def font_size_for(img: MatLike, base_fraction: float) -> int:
     return max(16, int(img.shape[1] * base_fraction))
 
 
+def _wrap_text(text: str, font, max_width: int) -> list:
+    """Quebra text em linhas que cabem dentro de max_width pixels."""
+    _, _, total_w, _ = font.getbbox(text, stroke_width=1)
+    if total_w <= max_width:
+        return [text]
+    words = text.split()
+    lines = []
+    current = ""
+    for word in words:
+        candidate = (current + " " + word).strip()
+        _, _, w, _ = font.getbbox(candidate, stroke_width=1)
+        if w <= max_width:
+            current = candidate
+        else:
+            if current:
+                lines.append(current)
+            current = word
+    if current:
+        lines.append(current)
+    return lines if lines else [text]
+
+
 # TODO: Revisar todas os textos mostrados em tela para utilizar o PIL
 def draw_rectangle(img: MatLike, text: str, text_size, position):
     cv2.rectangle(
@@ -306,19 +328,24 @@ def draw_face_positioning(img: MatLike) -> MatLike:
 
 def draw_message_center_screen(img: MatLike, text: str, color:tuple[3] = colors.BLACK, font_fraction: float = 0.077) -> MatLike:
     img_height, img_width, _ = img.shape
+    max_text_width = int(img_width * 0.88)
 
     pil_image = Image.fromarray(img)
-
     font = ImageFont.truetype(FONT_ARIAL_PATH, size=font_size_for(img, font_fraction))
     draw = ImageDraw.Draw(pil_image)
 
-    _, _, text_width, text_height = font.getbbox(text=text, stroke_width=1)
-    textX = int((img_width - text_width) / 2)
-    textY = int((img_height - text_height - 50))
-    draw.text((textX, textY), text, font=font, stroke_width=1, stroke_fill=color)
+    lines = _wrap_text(text, font, max_text_width)
+    _, _, _, line_height = font.getbbox(text, stroke_width=1)
+    line_spacing = int(line_height * 1.2)
+    total_height = line_height + (len(lines) - 1) * line_spacing
 
-    image = np.asarray(pil_image)
-    return image
+    base_y = int(img_height - total_height - 50)
+    for i, line in enumerate(lines):
+        _, _, text_width, _ = font.getbbox(line, stroke_width=1)
+        textX = int((img_width - text_width) / 2)
+        draw.text((textX, base_y + i * line_spacing), line, font=font, stroke_width=1, stroke_fill=color)
+
+    return np.asarray(pil_image)
 
 
 def write_message(img: MatLike, message: str) -> MatLike:
@@ -478,6 +505,22 @@ def draw_text_top_center(img: MatLike, text: str, color: tuple = colors.WHITE, f
     _, _, text_width, text_height = font.getbbox(text=text, stroke_width=2)
     textX = int((img.shape[1] - text_width) / 2)
     draw_obj.text((textX, 18), text, font=font, stroke_width=2, stroke_fill=colors.BLACK, fill=color)
+    return np.asarray(pil_image)
+
+
+def draw_text_center_y(img: MatLike, text: str, y: int, color: tuple = colors.BLACK, font_fraction: float = 0.040) -> MatLike:
+    img_width = img.shape[1]
+    max_text_width = int(img_width * 0.88)
+    pil_image = Image.fromarray(img)
+    font = ImageFont.truetype(FONT_ARIAL_PATH, size=font_size_for(img, font_fraction))
+    draw = ImageDraw.Draw(pil_image)
+    lines = _wrap_text(text, font, max_text_width)
+    _, _, _, line_height = font.getbbox(text, stroke_width=1)
+    line_spacing = int(line_height * 1.2)
+    for i, line in enumerate(lines):
+        _, _, text_width, _ = font.getbbox(line, stroke_width=1)
+        textX = int((img_width - text_width) / 2)
+        draw.text((textX, y + i * line_spacing), line, font=font, stroke_width=1, stroke_fill=color)
     return np.asarray(pil_image)
 
 
