@@ -29,7 +29,6 @@ DIALOG_START_GAME = [
     Dialog(
         Text="Vamos começar?",
         Character_Dir=CHARACTER_DIALOG,
-        Bold=True,
     ),
 ]
 
@@ -49,7 +48,6 @@ DIALOG_SEQUENCE = [
     Dialog(
         Text="Fique à vontade para ir devagar. Vamos lá!",
         Character_Dir=CHARACTER_DIALOG,
-        Bold=True,
     ),
 ]
 

@@ -19,6 +19,21 @@ logging.basicConfig(
 )
 
 
+_REAL_ERRORS = {
+    mov.LEFT_HAND:   {mov.RIGHT_HAND},
+    mov.RIGHT_HAND:  {mov.LEFT_HAND},
+    mov.OPEN_ARMS:   set(),
+    mov.LIGHT_SQUAT: set(),
+}
+
+_SUSTAINED_ERRORS = {
+    mov.LEFT_HAND:   (mov.OPEN_ARMS,),
+    mov.RIGHT_HAND:  (mov.OPEN_ARMS,),
+    mov.OPEN_ARMS:   (mov.LEFT_HAND, mov.RIGHT_HAND),
+    mov.LIGHT_SQUAT: (mov.LEFT_HAND, mov.RIGHT_HAND, mov.OPEN_ARMS),
+}
+
+
 class Identifier(poses.Poses):
     def __init__(self, list_valid_movements: list[int]):
 
@@ -36,6 +51,11 @@ class Identifier(poses.Poses):
         # valor menor (0.20) porque idosos nao precisam descer muito.
         self.CROUCH_FACTOR = 0.20
 
+        # erro sustentado: movimento errado so conta se a condicao vale sem interrupcao por este tempo.
+        self.SUSTAINED_ERROR_SECONDS = 1.0
+        # intervalo maximo entre avaliacoes consecutivas; acima disso a sequencia e considerada interrompida.
+        self.SUSTAINED_MAX_GAP_SECONDS = 0.3
+
         # tempo minimo (em segundos) entre deteccoes — maior para idosos
         # que nao alternam movimentos rapidamente.
         self.DETECTION_COOLDOWN = 1.2
@@ -43,9 +63,11 @@ class Identifier(poses.Poses):
 
         self._open_arms_confirm_count = 0
         self._crouch_confirm_count = 0
+        self._wrong_since = dict.fromkeys(mov.MOVEMENTS)
+        self._last_sustained_eval = None
+        self._command_resolved = False
         # mais frames necessarios = menos falsos positivos para movimentos lentos.
         self.CONFIRM_FRAMES_REQUIRED = 5
-
         super().__init__()
 
     def __str__(self):
@@ -60,6 +82,7 @@ class Identifier(poses.Poses):
         self._last_detection_time = time.time()
         self._open_arms_confirm_count = 0
         self._crouch_confirm_count = 0
+        self._reset_error_tracking(resolved=True)
 
     def arm_detection(self):
         """Bloqueia detecção por DETECTION_COOLDOWN após o fim da fase de demo.
@@ -67,6 +90,12 @@ class Identifier(poses.Poses):
         self._last_detection_time = time.time()
         self._open_arms_confirm_count = 0
         self._crouch_confirm_count = 0
+        self._reset_error_tracking()
+
+    def _reset_error_tracking(self, resolved: bool = False):
+        self._wrong_since = dict.fromkeys(mov.MOVEMENTS)
+        self._last_sustained_eval = None
+        self._command_resolved = resolved
 
     def process_image(self, img: MatLike):
 
@@ -81,16 +110,16 @@ class Identifier(poses.Poses):
             )
 
             self.handRX = float(
-                self.points.landmark[self.mpPose.PoseLandmark.RIGHT_WRIST].x
+                self.points.landmark[self.mpPose.PoseLandmark.RIGHT_INDEX].x
             )
             self.handRY = float(
-                self.points.landmark[self.mpPose.PoseLandmark.RIGHT_WRIST].y
+                self.points.landmark[self.mpPose.PoseLandmark.RIGHT_INDEX].y
             )
             self.handLX = float(
-                self.points.landmark[self.mpPose.PoseLandmark.LEFT_WRIST].x
+                self.points.landmark[self.mpPose.PoseLandmark.LEFT_INDEX].x
             )
             self.handLY = float(
-                self.points.landmark[self.mpPose.PoseLandmark.LEFT_WRIST].y
+                self.points.landmark[self.mpPose.PoseLandmark.LEFT_INDEX].y
             )
             self.noseX = float(self.points.landmark[self.mpPose.PoseLandmark.NOSE].x)
             self.noseY = float(self.points.landmark[self.mpPose.PoseLandmark.NOSE].y)
@@ -140,6 +169,56 @@ class Identifier(poses.Poses):
         else:
             self._crouch_confirm_count = 0
             return False
+
+    def _open_arms_cond(self) -> bool:
+        shoulder_y = (self.shoulderRY + self.shoulderLY) / 2
+        arms_wide = abs(self.handRX - self.handLX) > 0.35
+        arms_level = (self.handLY < shoulder_y + 0.15) or (self.handRY < shoulder_y + 0.15)
+        return arms_wide and arms_level
+
+    def _crouch_cond(self) -> bool:
+        actual_mid_y = (self.shoulderRY + self.shoulderLY) / 2
+        return actual_mid_y > self.standing_mid_y + self.body_unit * self.CROUCH_FACTOR
+
+    def _pure_cond(self, movement: int) -> bool:
+        match movement:
+            case mov.LEFT_HAND:
+                return self.hand_left()
+            case mov.RIGHT_HAND:
+                return self.hand_right()
+            case mov.OPEN_ARMS:
+                return self._open_arms_cond()
+            case mov.LIGHT_SQUAT:
+                return self._crouch_cond()
+
+    def _sustained_error(self, serial_id: int, player_name: str) -> bool | None:
+        now = time.perf_counter()
+        if (self._last_sustained_eval is not None
+                and now - self._last_sustained_eval > self.SUSTAINED_MAX_GAP_SECONDS):
+            self._wrong_since = dict.fromkeys(mov.MOVEMENTS)
+        self._last_sustained_eval = now
+
+        # certo em andamento (ainda sem confirmar): nao acumula erro
+        if self._pure_cond(self.command):
+            self._reset_error_tracking()
+            return None
+        for wrong in _SUSTAINED_ERRORS[self.command]:
+            if not self._pure_cond(wrong):
+                self._wrong_since[wrong] = None
+                continue
+            if self._wrong_since[wrong] is None:
+                self._wrong_since[wrong] = now
+            elif now - self._wrong_since[wrong] >= self.SUSTAINED_ERROR_SECONDS:
+                self.identified_movement = wrong
+                self._marcar_deteccao()
+                self.save_log(
+                    mov.MOVEMENTS_ORDER[self.command],
+                    mov.MOVEMENTS_ORDER[wrong],
+                    serial_id,
+                    player_name,
+                )
+                return False
+        return None
 
     def is_correct_positioned(self) -> bool:
         if self.shoulderRY == 0 or self.shoulderLY == 0:
@@ -199,42 +278,22 @@ class Identifier(poses.Poses):
             )
             return True
 
-        if self.command == mov.OPEN_ARMS:
-            if self.hand_left():
-                self.identified_movement = mov.LEFT_HAND
-                self._marcar_deteccao()
-                self.save_log(
-                    mov.MOVEMENTS_ORDER[self.command],
-                    mov.MOVEMENTS_ORDER[mov.LEFT_HAND],
-                    serial_id,
-                    player_name,
-                )
-                return False
-            if self.hand_right():
-                self.identified_movement = mov.RIGHT_HAND
-                self._marcar_deteccao()
-                self.save_log(
-                    mov.MOVEMENTS_ORDER[self.command],
-                    mov.MOVEMENTS_ORDER[mov.RIGHT_HAND],
-                    serial_id,
-                    player_name,
-                )
-                return False
-            return None  # agache/joelhos durante bracos abertos = ignorar
-
-        for i, fn in enumerate(self.MOVEMENTS_METHODS):
+        for detected in _REAL_ERRORS[self.command]:
+            fn = self.MOVEMENTS_METHODS[detected - 1]
             if fn():
-                self.identified_movement = i + 1
+                self.identified_movement = detected
                 self._marcar_deteccao()
                 self.save_log(
                     mov.MOVEMENTS_ORDER[self.command],
-                    mov.MOVEMENTS_ORDER[i + 1],
+                    mov.MOVEMENTS_ORDER[detected],
                     serial_id,
                     player_name,
                 )
                 return False
 
-        return None
+        if self._command_resolved:
+            return None
+        return self._sustained_error(serial_id, player_name)
 
     def save_log(self, mov_command: str, move_identified: str, serial_id: int, player_name: str = ""):
         timestamp = time.time()
@@ -264,6 +323,7 @@ class Identifier(poses.Poses):
 
     def reset_seq_command(self):
         self.seq_command = 0
+        self._reset_error_tracking()
         if self.list_commands:  # so acessa se nao for vazia
             self.command = self.list_commands[self.seq_command]
         else:
@@ -277,3 +337,4 @@ class Identifier(poses.Poses):
     def next_movement(self):
         self.seq_command += 1
         self.command = self.list_commands[self.seq_command]
+        self._reset_error_tracking()

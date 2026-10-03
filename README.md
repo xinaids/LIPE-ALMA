@@ -1,6 +1,6 @@
-# LIPE-ALMA — Atividade Lúdica para Memória Ativa
+# ALMA — Atividade Lúdica para Memória Ativa
 
-LIPE-ALMA é um jogo digital para estimular coordenação motora e memória em idosos, usando reconhecimento de pose via webcam. O jogador segue sequências de movimentos exibidas na tela, executando-as com o próprio corpo. O jogo detecta os movimentos automaticamente e fornece feedback visual imediato, encorajando o participante a cada etapa.
+ALMA é um jogo digital para estimular coordenação motora e memória em idosos, usando reconhecimento de pose via webcam. O jogador segue sequências de movimentos exibidas na tela, executando-as com o próprio corpo. O jogo detecta os movimentos automaticamente e fornece feedback visual imediato, encorajando o participante a cada etapa.
 
 ---
 

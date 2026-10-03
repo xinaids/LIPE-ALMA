@@ -3,7 +3,9 @@
     "allow": [
       "Bash(python3 *)",
       "Bash(iconv -f UTF-16LE -t UTF-8 requirements.txt)",
-      "PowerShell(Copy-Item *)"
+      "PowerShell(Copy-Item *)",
+      "Bash(xargs grep -l \"show_movement\\\\b\")",
+      "Bash(python -m pytest tests/test_fluxo_jogo.py -v)"
     ]
   }
 }

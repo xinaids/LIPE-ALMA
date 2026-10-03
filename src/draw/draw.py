@@ -332,7 +332,6 @@ def draw_message_center_screen(img: MatLike, text: str, color:tuple[3] = colors.
 
     pil_image = Image.fromarray(img)
     font = ImageFont.truetype(FONT_ARIAL_PATH, size=font_size_for(img, font_fraction))
-    draw = ImageDraw.Draw(pil_image)
 
     lines = _wrap_text(text, font, max_text_width)
     _, _, _, line_height = font.getbbox(text, stroke_width=1)
@@ -340,6 +339,8 @@ def draw_message_center_screen(img: MatLike, text: str, color:tuple[3] = colors.
     total_height = line_height + (len(lines) - 1) * line_spacing
 
     base_y = int(img_height - total_height - 50)
+
+    draw = ImageDraw.Draw(pil_image)
     for i, line in enumerate(lines):
         _, _, text_width, _ = font.getbbox(line, stroke_width=1)
         textX = int((img_width - text_width) / 2)
@@ -352,30 +353,27 @@ def write_message(img: MatLike, message: str) -> MatLike:
     img_height, img_width, _ = img.shape
 
     pil_image = Image.fromarray(img)
-
-    # Draw non-ascii text onto image
     font = ImageFont.truetype(FONT_ARIAL_PATH, size=font_size_for(img, 0.044))
-    draw = ImageDraw.Draw(pil_image)
 
     _, _, text_width, text_height = font.getbbox(text=message, stroke_width=1)
     textX = int((img_width - text_width) / 2)
     textY = int((img_height - text_height - 50))
+
+    draw = ImageDraw.Draw(pil_image)
     draw.text((textX, textY), message, font=font, stroke_width=1, stroke_fill=colors.BLACK)
 
-    image = np.asarray(pil_image)
-    return image
+    return np.asarray(pil_image)
 
 
 def draw_circles(
-    img: MatLike, num_circles: int, last_correct: int, wrong_move: bool = False, bounce_frame: int = 0
+    img: MatLike, num_circles: int, movement_results: list, bounce_frame: int = 0
 ):
     height, width, _ = img.shape
     overlay = img.copy()
 
-    radius = 30  # Raio fixo para os círculos
-    margin = 10  # Margem entre os círculos
+    radius = 30
+    margin = 10
 
-    # Definir o número de círculos por linha (no máximo 3 por linha)
     if num_circles <= 3:
         circles_in_first_line = num_circles
         draw_second_line = False
@@ -388,26 +386,25 @@ def draw_circles(
     thickness_border = 10
     opacity = 0.5
 
-    # Função para desenhar uma linha de círculos
     def draw_circle_line(start_count: int, num_circles_in_line: int, y_center: int):
-        # Calcular o espaçamento horizontal para centralizar os círculos
         total_width = (num_circles_in_line + start_count) * (2 * radius + margin) - margin
         start_x = (width - total_width) // 2 + radius
 
         for i in range(start_count, num_circles_in_line):
-            if last_correct > i:
-                color_circle = colors.GREEN
-                text = "V"
-            elif last_correct == i and wrong_move:
-                color_circle = colors.RED
-                text = "X"
+            if i < len(movement_results):
+                if movement_results[i]:
+                    color_circle = colors.GREEN
+                    text = "V"
+                else:
+                    color_circle = colors.WARM_RED
+                    text = "X"
             else:
                 color_circle = colors.GRAY
                 text = "-"
 
             bounce_effect = 0
-            if i == last_correct and bounce_frame > 0:
-                bounce_values = [0, 4, 7, 4, 0]  # Pode ajustar esse vetor pra suavidade
+            if i == len(movement_results) and bounce_frame > 0:
+                bounce_values = [0, 4, 7, 4, 0]
                 bounce_effect = bounce_values[bounce_frame % len(bounce_values)]
 
             adjusted_radius = radius + bounce_effect
@@ -501,9 +498,9 @@ def show_error_feedback(img: MatLike, detected: int, expected: int) -> MatLike:
 def draw_text_top_center(img: MatLike, text: str, color: tuple = colors.WHITE, font_fraction: float = 0.049) -> MatLike:
     pil_image = Image.fromarray(img)
     font = ImageFont.truetype(FONT_ARIAL_PATH, size=font_size_for(img, font_fraction))
-    draw_obj = ImageDraw.Draw(pil_image)
     _, _, text_width, text_height = font.getbbox(text=text, stroke_width=2)
     textX = int((img.shape[1] - text_width) / 2)
+    draw_obj = ImageDraw.Draw(pil_image)
     draw_obj.text((textX, 18), text, font=font, stroke_width=2, stroke_fill=colors.BLACK, fill=color)
     return np.asarray(pil_image)
 
@@ -513,14 +510,63 @@ def draw_text_center_y(img: MatLike, text: str, y: int, color: tuple = colors.BL
     max_text_width = int(img_width * 0.88)
     pil_image = Image.fromarray(img)
     font = ImageFont.truetype(FONT_ARIAL_PATH, size=font_size_for(img, font_fraction))
-    draw = ImageDraw.Draw(pil_image)
     lines = _wrap_text(text, font, max_text_width)
     _, _, _, line_height = font.getbbox(text, stroke_width=1)
     line_spacing = int(line_height * 1.2)
+    draw = ImageDraw.Draw(pil_image)
     for i, line in enumerate(lines):
         _, _, text_width, _ = font.getbbox(line, stroke_width=1)
         textX = int((img_width - text_width) / 2)
         draw.text((textX, y + i * line_spacing), line, font=font, stroke_width=1, stroke_fill=color)
+    return np.asarray(pil_image)
+
+
+def draw_hud(img: MatLike, player_name: str, team: str, score_a: int, score_b: int) -> MatLike:
+    h, w, _ = img.shape
+    pil_image = Image.fromarray(img)
+    draw = ImageDraw.Draw(pil_image)
+
+    font_size = font_size_for(img, 0.025)
+    font = ImageFont.truetype(FONT_ARIAL_PATH, size=font_size)
+
+    team_name = "Vermelho" if team == "A" else "Azul"
+    team_color = colors.RED if team == "A" else colors.BLUE
+    stroke = 2
+
+    # trunca nome se ultrapassar 45% da largura
+    max_name_w = int(w * 0.45)
+    name_display = player_name
+    _, _, nw, _ = font.getbbox(name_display, stroke_width=stroke)
+    if nw > max_name_w:
+        while len(name_display) > 1:
+            name_display = name_display[:-1]
+            _, _, nw, _ = font.getbbox(name_display + "…", stroke_width=stroke)
+            if nw <= max_name_w:
+                name_display += "…"
+                break
+
+    padding = int(w * 0.015)
+    y = int(h * 0.01)
+
+    # linha 1: "Vez: {nome} " branco + "(Vermelho)" / "(Azul)" colorido
+    part1 = f"Vez: {name_display} "
+    part2 = f"({team_name})"
+    _, _, w1, lh = font.getbbox(part1, stroke_width=stroke)
+    draw.text((padding, y), part1, font=font, fill=colors.WHITE,
+              stroke_width=stroke, stroke_fill=colors.BLACK)
+    draw.text((padding + w1, y), part2, font=font, fill=team_color,
+              stroke_width=stroke, stroke_fill=colors.BLACK)
+
+    # linha 2: "Vermelho: {N}" vermelho + "  Azul: {N}" azul
+    y2 = y + int(lh * 1.35)
+    text_a = f"Vermelho: {score_a}"
+    text_b = f"  Azul: {score_b}"
+    _, _, wa, _ = font.getbbox(text_a, stroke_width=stroke)
+    draw.text((padding, y2), text_a, font=font, fill=colors.RED,
+              stroke_width=stroke, stroke_fill=colors.BLACK)
+    draw.text((padding + wa, y2), text_b, font=font, fill=colors.BLUE,
+              stroke_width=stroke, stroke_fill=colors.BLACK)
+
     return np.asarray(pil_image)
 
 

@@ -1,5 +1,6 @@
 import pygame
 from src.datatypes.player import Player
+from src.utils.screenshot import save_pygame
 
 pygame.init()
 
@@ -51,6 +52,8 @@ class TeamsScreen:
                     rodando = False
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                     rodando = False
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_F12:
+                    save_pygame(tela)
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if btn_jogar.collidepoint(mouse):
                         resultado = "jogar"
@@ -62,7 +65,7 @@ class TeamsScreen:
             tela.fill((20, 20, 30))
 
             # título topo
-            surf_titulo = fonte_titulo.render("LIPE-ALMA", True, BRANCO)
+            surf_titulo = fonte_titulo.render("ALMA", True, BRANCO)
             tela.blit(surf_titulo, (self.largura // 2 - surf_titulo.get_width() // 2, 20))
 
             # painéis

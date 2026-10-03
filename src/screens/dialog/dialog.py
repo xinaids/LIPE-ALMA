@@ -2,6 +2,7 @@
 # coding: utf-8
 
 import pygame
+from src.utils.screenshot import save_pygame
 import sys
 from src.constants.timers import *
 from src.constants.constants import *
@@ -51,7 +52,10 @@ class DialogScreen:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     is_running = False
-                    
+
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_F12:
+                    save_pygame(screen)
+
                 if event.type == pygame.MOUSEBUTTONUP:
                     self.seq_dialog += 1
                     if len(dialogs) <= self.seq_dialog:

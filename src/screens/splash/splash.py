@@ -1,4 +1,5 @@
 import pygame
+from src.utils.screenshot import save_pygame
 
 
 class SplashScreen:
@@ -35,13 +36,15 @@ class SplashScreen:
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     raise SystemExit
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_F12:
+                    save_pygame(tela)
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if btn_jogar.collidepoint(mouse):
                         rodando = False
 
             tela.fill(FUNDO)
 
-            surf_titulo = fonte_titulo.render("LIPE-ALMA", True, BRANCO)
+            surf_titulo = fonte_titulo.render("ALMA", True, BRANCO)
             tela.blit(surf_titulo, (
                 largura // 2 - surf_titulo.get_width() // 2,
                 int(altura * 0.28),

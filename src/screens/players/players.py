@@ -1,6 +1,7 @@
 import pygame
 from src.datatypes.player import Player
 from database.students.students import add_student, select_max_id
+from src.utils.screenshot import save_pygame
 
 pygame.init()
 
@@ -23,6 +24,8 @@ class PlayerScreen:
         self.texto_input = ""
         self.ativo = False
         self.nomes_jogadores = []
+        self._msg_duplicado = ""
+        self._timer_msg_duplicado = 0
 
     def Show(self):
         clock = pygame.time.Clock()
@@ -48,10 +51,19 @@ class PlayerScreen:
                     else:
                         self.ativo = False
 
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_F12:
+                    save_pygame(self.tela)
+
                 if event.type == pygame.KEYDOWN and self.ativo:
                     if event.key == pygame.K_RETURN:
                         if self.texto_input.strip():
-                            self.nomes_jogadores.append(self.texto_input.strip())
+                            nome_novo = self.texto_input.strip()
+                            if nome_novo.lower() in [n.lower() for n in self.nomes_jogadores]:
+                                self._msg_duplicado = "Nome já cadastrado!"
+                                self._timer_msg_duplicado = pygame.time.get_ticks()
+                            else:
+                                self.nomes_jogadores.append(nome_novo)
+                                self._msg_duplicado = ""
                             self.texto_input = ""
                     elif event.key == pygame.K_BACKSPACE:
                         self.texto_input = self.texto_input[:-1]
@@ -62,6 +74,10 @@ class PlayerScreen:
             
             instrucoes = self.fonte.render("Digite os nomes e pressione Enter:", True, (255, 255, 255))
             self.tela.blit(instrucoes, (750, 200))
+
+            if self._msg_duplicado and pygame.time.get_ticks() - self._timer_msg_duplicado < 2000:
+                surf_erro = self.fonte.render(self._msg_duplicado, True, (255, 80, 80))
+                self.tela.blit(surf_erro, (self.input_box.x, self.input_box.y - 30))
 
             
             pygame.draw.rect(self.tela, (255, 255, 255), self.input_box, 2)

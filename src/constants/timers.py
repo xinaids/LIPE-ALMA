@@ -6,3 +6,6 @@ TIME_SHOW_PLAYER = 6 # tempo mostrando usuário em tela
 TIME_SHOW_SCORE = 8 # tempo mostrando pontuação em tela
 TIME_SHOW_START_MESSAGE = 6 # tempo de mensagem do inicio do round
 TIME_SHOW_REPEAT_MESSAGE = 4 # tempo de mensagem após os movimentos serem mostrados
+TIME_DETECTION_TIMEOUT = 30 # segundos até considerar erro por falta de movimento
+TIME_SHOW_TEAM_TITLE  = 3   # "TIME VERMELHO / AZUL" na apresentação de times
+TIME_SHOW_TEAM_PLAYER = 2   # cada nome de jogador na apresentação de times

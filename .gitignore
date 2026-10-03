@@ -17,3 +17,7 @@ output/
 LogsImages/
 PlayerAudio/
 PlayerImages/
+Capturas/
+.claude/settings.local.json
+RELATORIO_AUDITORIA.md
+.claude/settings.local.json

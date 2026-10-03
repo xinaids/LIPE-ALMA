@@ -1,4 +1,5 @@
 import pygame
+from src.utils.screenshot import save_pygame
 
 
 class EndRoundScreen:
@@ -46,6 +47,8 @@ class EndRoundScreen:
                     rodando = False
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                     rodando = False
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_F12:
+                    save_pygame(tela)
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if btn_continuar.collidepoint(mouse):
                         resultado = "continuar"
