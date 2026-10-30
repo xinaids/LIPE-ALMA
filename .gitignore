@@ -1,23 +1,30 @@
-# Ignorar ambientes virtuais
+# Ambientes virtuais
 venv/
 
-# Ignorar caches do Python
+# Caches do Python
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
 
-# Ignorar logs e arquivos temporários
+# Logs, banco e arquivos temporarios
 *.log
 *.db
 serial_id.txt
 
-# Pastas de saída
+# Pastas de saida e dados de execucao
 output/
 LogsImages/
 PlayerAudio/
 PlayerImages/
 Capturas/
+Captures/
+
+# Build do executavel
+build/
+dist/
+*.zip
+
+# Local / ferramentas
 .claude/settings.local.json
 RELATORIO_AUDITORIA.md
-.claude/settings.local.json
